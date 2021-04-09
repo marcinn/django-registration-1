@@ -11,7 +11,6 @@ from django.db import models
 from django.template import RequestContext, TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils import six
 
 from registration.users import UserModel, UserModelString
@@ -165,7 +164,6 @@ class RegistrationManager(models.Manager):
                 profile.delete()
 
 
-@python_2_unicode_compatible
 class RegistrationProfile(models.Model):
     """
     A simple profile which stores an activation key for use during
