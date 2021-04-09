@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib.sites.models import RequestSite
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
@@ -32,10 +31,7 @@ class RegistrationAdmin(admin.ModelAdmin):
         activated.
         
         """
-        if Site._meta.installed:
-            site = Site.objects.get_current()
-        else:
-            site = RequestSite(request)
+        site = Site.objects.get_current(request=request)
 
         for profile in queryset:
             if not profile.activation_key_expired():

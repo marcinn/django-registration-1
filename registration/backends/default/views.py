@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.sites.models import RequestSite
 from django.contrib.sites.models import Site
 
 from registration import signals
@@ -81,10 +80,7 @@ class RegistrationView(BaseRegistrationView):
 
         """
         username, email, password = cleaned_data['username'], cleaned_data['email'], cleaned_data['password1']
-        if Site._meta.installed:
-            site = Site.objects.get_current()
-        else:
-            site = RequestSite(request)
+        site = Site.objects.get_current(request=request)
         new_user = RegistrationProfile.objects.create_inactive_user(
             username, email, password, site,
             send_email=self.SEND_ACTIVATION_EMAIL,

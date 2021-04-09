@@ -11,7 +11,7 @@ from django.db import models
 from django.template import RequestContext, TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from django.utils import six
+import six
 
 from registration.users import UserModel, UserModelString
 
@@ -182,7 +182,10 @@ class RegistrationProfile(models.Model):
     """
     ACTIVATED = "ALREADY_ACTIVATED"
 
-    user = models.ForeignKey(UserModelString(), unique=True, verbose_name=_('user'))
+    user = models.ForeignKey(
+        UserModelString(), unique=True, verbose_name=_('user'),
+        on_delete=models.CASCADE,
+    )
     activation_key = models.CharField(_('activation key'), max_length=40)
 
     objects = RegistrationManager()
@@ -270,8 +273,6 @@ class RegistrationProfile(models.Model):
             flexibility via ``RequestContext``.
         """
         ctx_dict = {}
-        if request is not None:
-            ctx_dict = RequestContext(request, ctx_dict)
         # update ctx_dict after RequestContext is created
         # because template context processors
         # can overwrite some of the values like user
@@ -283,15 +284,15 @@ class RegistrationProfile(models.Model):
             'site': site,
         })
         subject = getattr(settings, 'REGISTRATION_EMAIL_SUBJECT_PREFIX', '') + \
-                  render_to_string('registration/activation_email_subject.txt', ctx_dict)
+                  render_to_string('registration/activation_email_subject.txt', ctx_dict, request=request)
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
 
-        message_txt = render_to_string('registration/activation_email.txt', ctx_dict)
+        message_txt = render_to_string('registration/activation_email.txt', ctx_dict, request=request)
         email_message = EmailMultiAlternatives(subject, message_txt, settings.DEFAULT_FROM_EMAIL, [self.user.email])
 
         try:
-            message_html = render_to_string('registration/activation_email.html', ctx_dict)
+            message_html = render_to_string('registration/activation_email.html', ctx_dict, request=request)
         except TemplateDoesNotExist:
             message_html = None
 

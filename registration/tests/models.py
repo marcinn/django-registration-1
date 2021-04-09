@@ -2,7 +2,7 @@ import datetime
 import hashlib
 import re
 
-from django.utils import six
+import six
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core import mail
